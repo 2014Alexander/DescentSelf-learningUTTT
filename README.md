@@ -189,3 +189,7 @@ Projekt systemu samouczącego się dla **Ultimate Tic-Tac-Toe**: silnik C++ (bit
 
 ## Short summary (EN)
 Self-play AI for **Ultimate Tic-Tac-Toe** using **Descent (UBFM) + NN**. C++ bitboard engine, Python training, expert-based regime. In **29,527** games at **0.5s/move**, **Descent+experts** scores **764 ± 15 Bayes Elo**, near **SaltZero 776 ± 7**, above **Minimax 567 ± 14**. Robust evaluation via **Bayes Elo** with an algebraically connected pairing graph (Fiedler λ₂).
+
+## Slides
+
+- 🎞️ **Presentation (PDF):** [`docs/Presentation.pdf`](docs/Presentation.pdf)
