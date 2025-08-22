@@ -88,13 +88,84 @@ Notes: same time control (**0.5s/move**), common tournament harness, and Bayes E
 
 ```
 .
-├─ projects/        # engine, training, evaluation, thesis assets
-├─ docs/            # plots, diagrams, result tables
+├─ docs/                                  # plots & diagrams (e.g., elo_vs_epoch.png)
+├─ projects/
+│  ├─ DescentSelf-learning_System_UTTT/   # core self-learning system (engine + training)
+│  │  ├─ cpp/
+│  │  │  ├─ include/
+│  │  │  │  ├─ big_board/                 # BigBoard.h, bitboard getters/setters
+│  │  │  │  ├─ bits/constants/            # bit-level constants
+│  │  │  │  ├─ boards/
+│  │  │  │  │  ├─ fields_functions/       # small-board access helpers
+│  │  │  │  │  ├─ precalculated/          # precomputed small boards
+│  │  │  │  │  └─ utils/                  # renderers/representation helpers
+│  │  │  │  ├─ selfplay/                  # Descent, SelfPlayer, BatchEvaluator (+ utils/)
+│  │  │  │  ├─ shared_memory/             # SharedMemory.h, python_config.h
+│  │  │  │  ├─ state_to_nn_representation/# C++ → NN channels mapping
+│  │  │  │  ├─ structures/                # ReplayBuffer, robin_map/set
+│  │  │  │  └─ training/                  # SampleTrainer.h
+│  │  │  └─ src/
+│  │  │     ├─ boards/…                   # impl of renderers/precalculated
+│  │  │     ├─ main/main.cpp              # demo/entry point
+│  │  │     └─ shared_memory/SharedMemory.cpp
+│  │  └─ python/
+│  │     └─ descent/
+│  │        ├─ trainer.py                 # self-play training loop
+│  │        ├─ model_wrapper.py           # TF/Keras model wrapper
+│  │        ├─ checkpoint_manager.py      # saving/rotation of checkpoints
+│  │        ├─ model_copy_manager.py      # copy/swap models (main ↔ expert)
+│  │        ├─ metrics_logger_tf.py       # training metrics
+│  │        ├─ shared_memory_script.py    # NumPy views ↔ C++ buffers bridge
+│  │        ├─ config.py                  # training/runtime config
+│  │        └─ backup_checkpoints.py
+│  │
+│  ├─ GeneralTestingSystem/               # tournament & evaluation harness
+│  │  ├─ include/
+│  │  │  ├─ game_board/                   # minimal board API (for testers)
+│  │  │  └─ tournament_system/
+│  │  │     ├─ client/                    # ClientWrapper
+│  │  │     ├─ communication/             # Communicator, ProcessLauncher, SocketListener
+│  │  │     ├─ referee/                   # ResultsLogger.h
+│  │  │     ├─ setup/                     # players_programs config (pairs/params/utils)
+│  │  │     └─ tournament/                # Referee, TournamentRunner (headers)
+│  │  └─ src/tournament_system/
+│  │     ├─ referee/ResultsLogger.cpp
+│  │     ├─ setup/players_programs/…      # parameters, players_pairs
+│  │     └─ tournament/                   # Referee.cpp, TournamentRunner.cpp
+│  │
+│  ├─ PlayersBots/                        # concrete players used in tests
+│  │  ├─ AlphaSalt/                       # Python client for SaltZero baseline
+│  │  │  ├─ AlphaSaltAPI.py
+│  │  │  └─ alpha_salt_client.py
+│  │  ├─ DescentPlayer/                   # C++ Descent-based agent (standalone)
+│  │  │  ├─ include/…                     # mirrors engine headers (BigBoard, selfplay, etc.)
+│  │  │  ├─ src/
+│  │  │  │  ├─ main/main.cpp              # agent entry point
+│  │  │  │  └─ shared_memory/SharedMemory.cpp
+│  │  │  └─ CMakeLists.txt
+│  │  └─ MiniMaxPlayer/                   # C++ Negamax α–β baseline
+│  │     ├─ include/
+│  │     │  ├─ client/communication/      # Communicator, TcpConnector
+│  │     │  └─ selfplay/evaluate/         # Small/Big board evaluators
+│  │     └─ src/
+│  │        ├─ main/main.cpp
+│  │        ├─ boards/precalculated/…
+│  │        └─ selfplay/evaluate/…
+│  │
+│  └─ others/
+│     └─ MaximumConnectivityMatchPlanner.py # pairing graph planner (max Fiedler λ₂)
+│
 ├─ LICENSE
 └─ README.md
 ```
 
-Code and thesis materials live under `projects/` (engine, training scripts, evaluation pipeline, diagrams/tables).
+### What lives where (quick map)
+
+- **DescentSelf-learning_System_UTTT/** — core **engine + training**: C++ core (bitboard, Descent/BatchEvaluator, SharedMemory) and Python trainer (TF/Keras, checkpoints, metrics).  
+- **GeneralTestingSystem/** — tournament harness and evaluation infrastructure: clients, process/socket communication, referee, tournament runner, results logging.  
+- **PlayersBots/** — concrete agents used for comparisons: `DescentPlayer` (C++ agent), `MiniMaxPlayer` (Negamax α–β), `AlphaSalt` (Python client for SaltZero).  
+- **others/** — match planner script for pairing graphs with maximum algebraic connectivity (for reliable Bayes Elo evaluation).  
+- **docs/** — artifacts: plots and result tables (e.g., `elo_vs_epoch.png`).  
 
 
 ## Reproducing thesis results (outline)
