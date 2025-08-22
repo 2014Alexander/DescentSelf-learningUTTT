@@ -7,9 +7,24 @@ C++ bitboard engine + Python training pipeline, expert-based self-play, unified 
 
 ## Why this matters
 
-- **Alternative to AlphaZero-style MCTS:** Descent + NN shows competitive strength in UTTT while using a different search paradigm.  
-- **Full-stack research → engineering:** from bit-level game state and fast move generation to batched NN evaluation, self-play data loops, and reproducible rankings.  
-- **Robust benchmarking:** large evaluation pool, fixed time-per-move, optimal pairing graph for Bayes Elo → more reliable comparisons.
+**1) A competitive alternative to AlphaZero-style MCTS for UTTT.**  
+We apply **Descent (UBFM + NN)** to Ultimate Tic-Tac-Toe — to our knowledge, its first rigorous use on this game — and show it can **match an AlphaZero-style baseline (SaltZero)** under the same time control. This is valuable for teams exploring search-and-learn hybrids beyond MCTS.
+
+**2) End-to-end, production-like engineering—not just a model.**  
+This repo includes a **high-performance C++ bitboard engine** (compact state in 12 integers, precomputed small boards), a **Python/TensorFlow trainer** embedded into the C++ process via **pybind11/shared memory**, and **batched GPU evaluation**. The result is **low-latency C++ control with ML throughput from Python**—a pattern directly transferable to real systems.
+
+**3) Reproducible and honest benchmarking at scale.**  
+We evaluate **≈29.5k games at 0.5s/move** across many checkpoints and players and compute **Bayes Elo** from a unified tournament harness. Crucially, we **don’t** rely on round-robin; instead, we auto-build a **pairing graph with maximal algebraic connectivity (Fiedler λ₂)** so that even with partial pairings you still get robust relative strength estimates. This reduces bias and makes results credible.
+
+**4) “Expert-based” self-play that stabilizes and accelerates learning.**  
+Beyond vanilla self-play, we periodically load **expert checkpoints** and control their contribution during training/inference. In practice this **speeds up early learning to expert level** and **smooths training**, producing a clear, monotonic improvement curve and stronger final agents. This regime also enables controlled ablation studies (fixed expert, same starting checkpoint).
+
+**5) A generalizable framework for two-player perfect-information games.**  
+The code cleanly separates **engine, training, and evaluation** with well-defined interfaces (clients over TCP/protocol, config-driven tournaments). That makes it straightforward to **swap the game**, **change network architectures**, or **plug in other search agents** (e.g., Minimax, MCTS) and evaluate them under identical conditions.
+
+**6) Signals aligned with what hiring teams value.**  
+This project demonstrates: (a) **systems thinking** (C++ perf + Python ML in one process), (b) **experiment discipline** (checkpoints, metrics, ablations, Elo with statistical grounding), and (c) **ability to ship** a **reproducible pipeline** rather than a one-off demo—skills that map directly to production ML/AI roles.
+
 
 ---
 
@@ -69,11 +84,18 @@ Notes: same time control (**0.5s/move**), common tournament harness, and Bayes E
 
 ---
 
-## Repository structure (as-is)
+## Repository structure
 
-> Code and thesis materials live under `projects/` (engine, training scripts, evaluation pipeline, diagrams/tables).
+```
+.
+├─ projects/        # engine, training, evaluation, thesis assets
+├─ docs/            # plots, diagrams, result tables
+├─ LICENSE
+└─ README.md
+```
 
----
+Code and thesis materials live under `projects/` (engine, training scripts, evaluation pipeline, diagrams/tables).
+
 
 ## Reproducing thesis results (outline)
 
