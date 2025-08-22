@@ -57,3 +57,29 @@ Notes: same time control (**0.5s/move**), common tournament harness and Bayes El
 
 ## Repository structure (as-is)
 
+> Code and thesis materials live under `projects/` (engine, training scripts, evaluation pipeline, diagrams/tables).
+
+---
+
+## Reproducing thesis results (outline)
+
+1. **Self-play & training schedule.** Run epochs that alternate: self-play data collection → training on sampled batches (experience replay). Maintain **main** checkpoints and a small pool of **experts** (top past checkpoints).
+2. **Expert-based training.** For early epochs use experts exclusively for state evaluation; later interleave experts with the current main net on a fixed cadence to stabilize learning.
+3. **Tournament set.** Build N checkpointed players (e.g., 100). Generate a **d-regular pairing graph** that **maximizes algebraic connectivity (Fiedler value λ₂)** to ensure indirect comparability when not all pairs meet directly.
+4. **Play & collect.** Fixed time-per-move (0.5s), fixed number of encounters per pair (even count to balance first-move advantage). Export results to **PGN**.
+5. **Rating.** Compute **Bayes Elo** from the PGN set; plot Elo vs. training epoch for learning curves and report the final table.
+
+---
+
+## License & acknowledgments
+- **License:** GPL-3.0  
+- **References:** Descent/UBFM, AlphaZero line of work, Bayes Elo methodology, algebraic connectivity (Fiedler) for pairing graphs.
+
+---
+
+## Krótko po polsku (PL)
+Projekt systemu samouczącego się dla **Ultimate Tic-Tac-Toe**: silnik C++ (bitboard), sieć w Pythonie (TensorFlow/Keras), uczenie z **ekspertami**. W testach (**29 527 gier**, **0.5s/ruch**) system **Descent + NN** osiąga **764 ± 15 Bayes Elo**, blisko **SaltZero 776 ± 7** i powyżej **Minimax 567 ± 14**. Ranking oparty na **Bayes Elo** i doborze par o maksymalnej łączności algebraicznej (Fiedler λ₂).
+
+## Short summary (EN)
+Self-play AI for **Ultimate Tic-Tac-Toe** using **Descent (UBFM) + NN**. C++ bitboard engine, Python training, expert-based regime. In **29,527** games at **0.5s/move**, **Descent+experts** scores **764 ± 15 Bayes Elo**, near **SaltZero 776 ± 7**, above **Minimax 567 ± 14**. Robust evaluation via **Bayes Elo** with an algebraically connected pairing graph (Fiedler λ₂).
+
